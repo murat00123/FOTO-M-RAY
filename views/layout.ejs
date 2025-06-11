@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title + ' - ' : '' %>MİRAY PHOTOGRAPHY</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="/images/miray-logo.png" alt="MİRAY PHOTOGRAPHY" class="logo">
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="/" class="nav-link">Ana Sayfa</a>
+                <a href="/gallery" class="nav-link">Galeri</a>
+                <a href="/about" class="nav-link">Hakkımda</a>
+                <a href="/contact" class="nav-link">İletişim</a>
+            </div>
+            <div class="nav-toggle" id="nav-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <%- body %>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Konum</h3>
+                    <div class="map-container">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3001.291771960205!2d36.2945796754968!3d41.32515097130288!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x408879c3e7c895c3%3A0x14afca97c25d7aad!2sFOTO%20M%C4%B0RAY%20(%20Hakan%20TUN%C3%87AY%20)!5e0!3m2!1str!2str!4v1716140652874!5m2!1str!2str"
+                            class="map-iframe"
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>İletişim</h3>
+                    <p><i class="fas fa-envelope"></i> <%= content.contactEmail1 %></p>
+                    <p><i class="fas fa-envelope"></i> <%= content.contactEmail2 %></p>
+                    <p><i class="fas fa-map-marker-alt"></i> <%= content.contactAddressShort %></p>
+                </div>
+                <div class="footer-section">
+                    <h3>Sosyal Medya</h3>
+                    <div class="social-links">
+                        <a href="https://www.instagram.com/fotomiray55/" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 <img src="/images/miray-logo.png" alt="MİRAY PHOTOGRAPHY" style="height: 20px; width: auto; vertical-align: middle; margin: 0 5px;"> Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="/js/script.js"></script>
+</body>
+</html> 

@@ -1,0 +1,44 @@
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Konum</h3>
+                <div class="map-container">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3001.291771960205!2d36.2945796754968!3d41.32515097130288!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x408879c3e7c895c3%3A0x14afca97c25d7aad!2sFOTO%20M%C4%B0RAY%20(%20Hakan%20TUN%C3%87AY%20)!5e0!3m2!1str!2str!4v1716140652874!5m2!1str!2str"
+                        class="map-iframe"
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>İletişim</h3>
+                <% if (content.contactPhones && content.contactPhones.length > 0) { %>
+                    <% content.contactPhones.forEach(phone => { %>
+                        <p><i class="fas fa-phone"></i> <a href="tel:<%= phone.replace(/\s/g, '') %>"><%= phone %></a></p>
+                    <% }); %>
+                <% } %>
+                <% if (content.contactEmails && content.contactEmails.length > 0) { %>
+                    <% content.contactEmails.forEach(email => { %>
+                        <p><i class="fas fa-envelope"></i> <a href="mailto:<%= email %>"><%= email %></a></p>
+                    <% }); %>
+                <% } %>
+                <p><i class="fas fa-map-marker-alt"></i> <%= content.contactAddressShort %></p>
+            </div>
+            <div class="footer-section">
+                <h3>Sosyal Medya</h3>
+                <div class="social-links">
+                    <a href="<%= content.instagramUrl %>" target="_blank" class="social-link">
+                        <i class="fab fa-instagram"></i> 
+                        <%= content.instagramUsername %>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 <img src="/images/miray-logo.png" alt="MİRAY PHOTOGRAPHY" style="height: 20px; width: auto; vertical-align: middle; margin: 0 5px;"> Tüm hakları saklıdır.</p>
+        </div>
+    </div>
+</footer> 

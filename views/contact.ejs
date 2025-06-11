@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İletişim - 📸 FOTO MİRAY</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+</head>
+<body>
+    <%- include('partials/navbar', { page: 'contact' }); %>
+
+    <main>
+        <!-- Page Header -->
+        <section class="page-header">
+            <div class="container">
+                <h1>İletişim</h1>
+                <p>Benimle iletişime geçin, projelerinizi konuşalım</p>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="contact-section">
+            <div class="container">
+                <div class="contact-content">
+                    <div class="contact-info" data-aos="fade-right">
+                        <h2>İletişim Bilgileri</h2>
+                        <p>Fotoğrafçılık hizmetleri için benimle iletişime geçmekten çekinmeyin. Size en kısa sürede dönüş yapacağım.</p>
+                        
+                        <div class="contact-items">
+                            <div class="contact-item">
+                                <div class="contact-icon">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div class="contact-details">
+                                    <h3>Telefon</h3>
+                                    <% if (content.contactPhones && content.contactPhones.length > 0) { %>
+                                        <% content.contactPhones.forEach(phone => { %>
+                                            <p><a href="tel:<%= phone.replace(/\s/g, '') %>"><%= phone %></a></p>
+                                        <% }); %>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <div class="contact-icon">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div class="contact-details">
+                                    <h3>E-posta</h3>
+                                    <% if (content.contactEmails && content.contactEmails.length > 0) { %>
+                                        <% content.contactEmails.forEach(email => { %>
+                                            <p><a href="mailto:<%= email %>"><%= email %></a></p>
+                                        <% }); %>
+                                    <% } %>
+                                </div>
+                            </div>
+                            
+
+                            
+                            <div class="contact-item">
+                                <div class="contact-icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div class="contact-details">
+                                    <h3>Adres</h3>
+                                    <p>
+                                        <a href="<%= content.contactGoogleMapsUrl %>" target="_blank" style="text-decoration: none; color: inherit;">
+                                            <%= content.contactAddressFull %>
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <div class="contact-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="contact-details">
+                                    <h3>Çalışma Saatleri</h3>
+                                    <% if (content.workingHours && content.workingHours.length > 0) { %>
+                                        <ul class="working-hours-list">
+                                            <% content.workingHours.forEach(item => { %>
+                                                <li><strong><%= item.day %>:</strong> <span><%= item.hours %></span></li>
+                                            <% }); %>
+                                        </ul>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <div class="contact-icon">
+                                    <i class="fab fa-instagram"></i>
+                                </div>
+                                <div class="contact-details">
+                                    <h3>Instagram</h3>
+                                    <p><a href="<%= content.instagramUrl %>" target="_blank" style="text-decoration: none; color: inherit;"><%= content.instagramUsername %></a></p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="contact-form" data-aos="fade-left">
+                        <h2>Mesaj Gönderin</h2>
+                        <form id="contactForm">
+                            <div class="form-group">
+                                <label for="name">Ad Soyad</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">E-posta</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="phone">Telefon</label>
+                                <input type="tel" id="phone" name="phone">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="service">Hizmet Türü</label>
+                                <select id="service" name="service" required>
+                                    <option value="">Seçiniz</option>
+                                    <option value="wedding">Düğün Fotoğrafçılığı</option>
+                                    <option value="portrait">Portre Çekimi</option>
+                                    <option value="family">Bebek & Aile</option>
+                                    <option value="corporate">Kurumsal Çekim</option>
+                                    <option value="other">Diğer</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="date">Tarih</label>
+                                <input type="date" id="date" name="date">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="message">Mesajınız</label>
+                                <textarea id="message" name="message" rows="5" required placeholder="Proje detaylarınızı ve özel isteklerinizi yazın..."></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Mesaj Gönder</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <%- include('partials/footer'); %>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="/js/script.js"></script>
+</body>
+</html> 

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeri - 📸 FOTO MİRAY</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+</head>
+<body>
+    <%- include('partials/navbar', { page: 'gallery' }); %>
+
+    <main>
+        <!-- Page Header -->
+        <section class="page-header">
+            <div class="container">
+                <h1>Galeri</h1>
+                <p>Çalışmalarımdan seçilmiş fotoğraflar</p>
+            </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section class="gallery-section">
+            <div class="container">
+                <% if (photos && photos.length > 0) { %>
+                    <div class="gallery-grid">
+                        <% photos.forEach((photo, index) => { %>
+                            <div class="gallery-item" data-aos="fade-up" data-aos-delay="<%= index * 50 %>">
+                                <img src="/uploads/gallery/<%= photo.filename %>" alt="<%= photo.title %>" onclick="openLightbox('<%= photo.filename %>', '<%= photo.title %>', '<%= photo.description %>')">
+                                <div class="gallery-overlay">
+                                    <h3><%= photo.title %></h3>
+                                    <p><%= photo.description %></p>
+                                    <div class="gallery-meta">
+                                        <span><i class="fas fa-calendar"></i> <%= new Date(photo.uploadDate).toLocaleDateString('tr-TR') %></span>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <div class="no-photos">
+                        <i class="fas fa-camera"></i>
+                        <h2>Henüz fotoğraf eklenmedi</h2>
+                        <p>Galeri yakında güzel fotoğraflarla dolacak</p>
+                    </div>
+                <% } %>
+            </div>
+        </section>
+    </main>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <div class="lightbox-content">
+            <img id="lightbox-img" src="" alt="">
+            <div class="lightbox-info">
+                <h3 id="lightbox-title"></h3>
+                <p id="lightbox-description"></p>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/footer'); %>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="/js/script.js"></script>
+</body>
+</html> 

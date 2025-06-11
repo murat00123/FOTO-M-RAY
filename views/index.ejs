@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📸 FOTO MİRAY</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <%- include('partials/navbar', { page: 'home' }); %>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <img src="/images/miray-logo.png" alt="MİRAY PHOTOGRAPHY" class="hero-logo" data-aos="fade-right">
+                    <p class="hero-subtitle" data-aos="fade-right" data-aos-delay="100"><%= content.heroSubtitle %></p>
+                    <div class="hero-buttons" data-aos="fade-right" data-aos-delay="200">
+                        <a href="/gallery" class="btn btn-primary">Galeriyi Gör</a>
+                        <a href="/contact" class="btn btn-secondary">İletişime Geç</a>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-scroll">
+                <span>Aşağı Kaydır</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </section>
+
+        <!-- Featured Gallery Section -->
+        <section class="featured-gallery">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Öne Çıkan Çalışmalar</h2>
+                    <p>Son projelerimden öne çıkan fotoğraflar</p>
+                </div>
+                <div class="gallery-grid">
+                    <% if (photos && photos.length > 0) { %>
+                        <% photos.forEach((photo, index) => { %>
+                            <div class="gallery-item" data-aos="fade-up" data-aos-delay="<%= index * 100 %>">
+                                <img src="/uploads/gallery/<%= photo.filename %>" alt="<%= photo.title %>">
+                                <div class="gallery-overlay">
+                                    <h3><%= photo.title %></h3>
+                                    <p><%= photo.description %></p>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="no-photos">
+                            <i class="fas fa-camera"></i>
+                            <p>Henüz fotoğraf eklenmedi</p>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="gallery-cta">
+                    <a href="/gallery" class="btn btn-outline">Tüm Galeriyi Gör</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section class="services">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Hizmetlerim</h2>
+                    <p>Sunduğum profesyonel fotoğrafçılık hizmetleri</p>
+                </div>
+                <div class="services-grid">
+                    <div class="service-item" data-aos="fade-up">
+                        <div class="service-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3>Düğün Fotoğrafçılığı</h3>
+                        <p>Hayatınızın en özel gününü unutulmaz karelerle ölümsüzleştiriyorum.</p>
+                    </div>
+                    <div class="service-item" data-aos="fade-up" data-aos-delay="100">
+                        <div class="service-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h3>Portre Çekimi</h3>
+                        <p>Kişiliğinizi yansıtan profesyonel portre fotoğrafları çekiyorum.</p>
+                    </div>
+                    <div class="service-item" data-aos="fade-up" data-aos-delay="200">
+                        <div class="service-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Aile</h3>
+                        <p>Ailenizin sevgi dolu anlarını hassasiyetle fotoğraflıyorum.</p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta">
+            <div class="container">
+                <div class="cta-content">
+                    <h2>Özel Anlarınızı Birlikte Yakalayalım</h2>
+                    <p>Profyonel fotoğrafçılık hizmetleri için benimle iletişime geçin</p>
+                    <a href="/contact" class="btn btn-primary">Randevu Al</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <%- include('partials/footer'); %>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="/js/script.js"></script>
+</body>
+</html> 

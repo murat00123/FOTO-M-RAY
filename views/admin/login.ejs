@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Giriş - MİRAY PHOTOGRAPHY</title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="admin-login-body">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                                 <img src="/images/miray-logo.png" alt="MİRAY PHOTOGRAPHY" class="login-logo">
+                <h1>Admin Paneli</h1>
+                <p>Yönetim paneline giriş yapın</p>
+            </div>
+            
+            <% if (error) { %>
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <%= error %>
+                </div>
+            <% } %>
+            
+            <form method="POST" action="/admin/login" class="login-form">
+                <div class="form-group">
+                    <label for="username">Kullanıcı Adı</label>
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="username" name="username" required placeholder="Kullanıcı adınızı girin">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Şifre</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" name="password" required placeholder="Şifrenizi girin">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Giriş Yap
+                </button>
+            </form>
+            
+            <div class="login-footer">
+                <a href="/" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    Ana Sayfaya Dön
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-bg">
+        <div class="bg-overlay"></div>
+    </div>
+</body>
+</html> 

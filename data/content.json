@@ -1,0 +1,50 @@
+{
+    "heroTitle": "FOTO MİRAY",
+    "heroSubtitle": "Gelin en güzel anılarınızı ölümsüzleştirelim...",
+    "aboutTitle": "Merhaba, Ben Hakan Tunçay",
+    "aboutText": "Ben tutkulu bir fotoğrafçıyım.\n\nYıllardır ışığın, kompozisyonun ve doğru anın peşinde, müşterilerim için en yüksek kalitede kareler üretiyorum. Sanat ve tekniği bir araya getirerek, hayatınızın en anlamlı dönüm noktalarını zamanın ötesinde fotoğraflara dönüştürüyorum. Düğün gününüzün hikayesini en zarif detaylarıyla anlatmaktan, mezuniyet coşkunuzu dinamik portrelerle taçlandırmaya veya sizi en iyi yansıtan profesyonel portreler yaratmaya kadar her çekimi kendine özgü bir proje olarak ele alıyorum.",
+    "instagramUrl": "https://www.instagram.com/fotomiray55/",
+    "instagramUsername": "fotomiray55",
+    "footerCopyright": "© 2024 Miray Photography. All rights reserved.",
+    "contactEmails": [
+        "dhadghajdgaj@dajkhhdajhd",
+        "adhadaj@dahhdajda"
+    ],
+    "contactPhones": [
+        "6566559565656",
+        "545454545"
+    ],
+    "contactAddressShort": "Atakum / Samsun",
+    "contactAddressFull": "Esenevler Mah. İsmet İnönü Bulv. No: 15/B (Samgaz Karşısı) Atakum / Samsun",
+    "contactGoogleMapsUrl": "https://www.google.com/maps/place/FOTO+M%C4%B0RAY+(+Hakan+TUN%C3%87AY+)/@41.325155,36.2945797,17z/data=!4m6!3m5!1s0x408879c3e7c895c3:0x14afca97c25d7aad!8m2!3d41.325151!4d36.29716!16s%2Fg%2F11n_n46csy?hl=tr&entry=ttu&g_ep=EgoyMDI1MDYwNC4wIKXMDSoASAFQAw%3D%3D",
+    "workingHours": [
+        {
+            "day": "Pazartesi",
+            "hours": "08:00–19:30"
+        },
+        {
+            "day": "Salı",
+            "hours": "08:00–19:30"
+        },
+        {
+            "day": "Çarşamba",
+            "hours": "08:00–19:30"
+        },
+        {
+            "day": "Perşembe",
+            "hours": "08:00–19:30"
+        },
+        {
+            "day": "Cuma",
+            "hours": "08:00–19:30"
+        },
+        {
+            "day": "Cumartesi",
+            "hours": "08:30–19:00"
+        },
+        {
+            "day": "Pazar",
+            "hours": "12:00–18:30"
+        }
+    ]
+}
