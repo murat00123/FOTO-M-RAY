@@ -95,9 +95,14 @@ function initializeData() {
 }
 
 // Helper functions
-function getContent() {
+async function getContent() {
     try {
-        return JSON.parse(fs.readFileSync(contentFile, 'utf8'));
+        if (usingMysql) {
+            const Content = require('./models/Content');
+            return await Content.getAll();
+        } else {
+            return JSON.parse(fs.readFileSync(contentFile, 'utf8'));
+        }
     } catch (error) {
         console.error('Content okuma hatası:', error);
         return {};
@@ -206,42 +211,62 @@ const upload = multer({
 });
 
 // Routes
-app.get('/', (req, res) => {
-    const content = getContent();
-    const photos = getPhotos();
-    const featuredPhotos = photos.filter(photo => photo.featured).slice(0, 6);
-    
-    res.render('index', { 
-        content: content,
-        photos: featuredPhotos,
-        page: 'home'
-    });
+app.get('/', async (req, res) => {
+    try {
+        const content = await getContent();
+        const photos = getPhotos();
+        const featuredPhotos = photos.filter(photo => photo.featured).slice(0, 6);
+        
+        res.render('index', { 
+            content: content,
+            photos: featuredPhotos,
+            page: 'home'
+        });
+    } catch (error) {
+        console.error('Home page error:', error);
+        res.status(500).send('Sayfa yüklenirken bir hata oluştu.');
+    }
 });
 
-app.get('/about', (req, res) => {
-    const content = getContent();
-    res.render('about', { 
-        content: content,
-        page: 'about'
-    });
+app.get('/about', async (req, res) => {
+    try {
+        const content = await getContent();
+        res.render('about', { 
+            content: content,
+            page: 'about'
+        });
+    } catch (error) {
+        console.error('About page error:', error);
+        res.status(500).send('Sayfa yüklenirken bir hata oluştu.');
+    }
 });
 
-app.get('/gallery', (req, res) => {
-    const content = getContent();
-    const photos = getPhotos();
-    res.render('gallery', { 
-        content: content,
-        photos: photos,
-        page: 'gallery'
-});
+app.get('/gallery', async (req, res) => {
+    try {
+        const content = await getContent();
+        const photos = getPhotos();
+        res.render('gallery', { 
+            content: content,
+            photos: photos,
+            page: 'gallery'
+        });
+    } catch (error) {
+        console.error('Gallery page error:', error);
+        res.status(500).send('Sayfa yüklenirken bir hata oluştu.');
+    }
 });
 
-app.get('/contact', (req, res) => {
-    const content = getContent();
-    res.render('contact', { 
-        content: content,
-        page: 'contact'
-    });
+app.get('/contact', async (req, res) => {
+    try {
+        const content = await getContent();
+        res.render('contact', { 
+            content: content,
+            page: 'contact'
+        });
+    } catch (error) {
+        console.error('Contact page error:', error);
+        res.status(500).send('Sayfa yüklenirken bir hata oluştu.');
+    }
 });
 
 // Contact form submission
@@ -378,19 +403,24 @@ app.post('/admin/login', async (req, res) => {
     }
 });
 
-app.get('/admin/dashboard', requireAdmin, (req, res) => {
-    const content = getContent();
-    const photos = getPhotos();
-    const messages = getMessages();
-    const unreadCount = messages.filter(msg => !msg.isRead).length;
-    
-    res.render('admin/dashboard', {
-        user: req.session.adminUser,
-        content: content,
-        photos: photos,
-        messages: messages,
-        unreadCount: unreadCount
-    });
+app.get('/admin/dashboard', requireAdmin, async (req, res) => {
+    try {
+        const content = await getContent();
+        const photos = getPhotos();
+        const messages = getMessages();
+        const unreadCount = messages.filter(msg => !msg.isRead).length;
+        
+        res.render('admin/dashboard', {
+            user: req.session.adminUser,
+            content: content,
+            photos: photos,
+            messages: messages,
+            unreadCount: unreadCount
+        });
+    } catch (error) {
+        console.error('Admin dashboard error:', error);
+        res.status(500).send('Dashboard yüklenirken bir hata oluştu.');
+    }
 });
 
 app.get('/admin/messages', requireAdmin, (req, res) => {
