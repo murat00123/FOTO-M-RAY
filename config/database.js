@@ -1,14 +1,15 @@
 const mysql = require('mysql2/promise');
 
-// Veritabanı bağlantı ayarları
+// Veritabanı bağlantı ayarları (Environment variables ile)
 const dbConfig = {
-    host: 'localhost',
-    port: 3306,
-    user: 'root',          // MySQL kullanıcı adınız
-    password: '',          // MySQL şifreniz (boş bırakabilirsiniz)
-    database: 'foto_miray',
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || 3306,
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'foto_miray',
     charset: 'utf8mb4',
-    connectTimeout: 10000
+    connectTimeout: 20000,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 };
 
 // Veritabanı bağlantı havuzu oluştur

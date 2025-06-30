@@ -13,11 +13,11 @@ app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(session({
-    secret: 'foto-miray-secret-key-2024',
+    secret: process.env.SESSION_SECRET || 'foto-miray-secret-key-2024',
     resave: false,
     saveUninitialized: false,
     cookie: { 
-        secure: false,
+        secure: process.env.NODE_ENV === 'production',
         maxAge: 24 * 60 * 60 * 1000 // 24 saat
     }
 }));
