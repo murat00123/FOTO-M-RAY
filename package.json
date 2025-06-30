@@ -6,8 +6,9 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon --ext js,ejs server.js",
-    "build": "echo 'Build completed'",
-    "vercel-build": "echo 'Vercel build completed'"
+    "build": "npm install --production",
+    "vercel-build": "echo 'Vercel build completed'",
+    "render-build": "npm install"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

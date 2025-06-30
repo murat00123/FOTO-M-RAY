@@ -57,7 +57,8 @@ async function initializeDatabase() {
         console.log('⚠️  MySQL bağlantı hatası:', error.message);
         console.log('📁 JSON dosya sistemi kullanılacak...');
         isConnected = false;
-        // MySQL bağlantısı yoksa hata atmayalım, JSON sistemini kullanacağız
+        // MySQL bağlantısı yoksa hata atalım ki JSON sistemini kullanabilelim
+        throw error;
     }
 }
 

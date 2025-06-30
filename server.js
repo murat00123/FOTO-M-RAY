@@ -17,7 +17,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: { 
-        secure: process.env.NODE_ENV === 'production',
+        secure: false, // Render.com proxy kullandığı için false olmalı
         maxAge: 24 * 60 * 60 * 1000 // 24 saat
     }
 }));
@@ -261,9 +261,21 @@ app.post('/admin/login', async (req, res) => {
             user = await AdminUser.authenticate(username, password);
         } else {
             // JSON dosya sistemi fallback
-            const adminCreds = getAdminCredentials();
-            if (username === adminCreds.username && password === adminCreds.password) {
-                user = { username: adminCreds.username };
+            // Production'da environment variables'ları tercih et
+            const envUsername = process.env.ADMIN_USERNAME;
+            const envPassword = process.env.ADMIN_PASSWORD;
+            
+            if (envUsername && envPassword) {
+                // Environment variables'dan kontrol et
+                if (username === envUsername && password === envPassword) {
+                    user = { username: envUsername };
+                }
+            } else {
+                // JSON dosya sistemini kullan
+                const adminCreds = getAdminCredentials();
+                if (username === adminCreds.username && password === adminCreds.password) {
+                    user = { username: adminCreds.username };
+                }
             }
         }
         
