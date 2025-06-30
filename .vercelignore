@@ -1,0 +1,26 @@
+# Vercel ignore file
+
+# Development files
+.env.local
+.env.development
+
+# Test files
+test/
+tests/
+*.test.js
+*.spec.js
+
+# Development tools
+.vscode/
+.idea/
+
+# Local MySQL data
+mysql-data/
+
+# Debug files
+debug.log
+*.log
+temp/
+
+# Node modules (already in .gitignore but adding here for clarity)
+node_modules/ 

@@ -228,7 +228,7 @@ app.get('/admin/login', (req, res) => {
     res.clearCookie('connect.sid');
     res.clearCookie('admin-session');
     
-    res.render('admin/login');
+    res.render('admin/login', { error: null });
 });
 
 // Logout endpoint'i ekle
@@ -268,7 +268,7 @@ app.post('/admin/login', async (req, res) => {
         }
         
         if (user) {
-            req.session.isAdmin = true;
+        req.session.isAdmin = true;
             req.session.adminUser = { username: user.username };
             
             // Başarılı giriş için özel header ekle
@@ -279,7 +279,7 @@ app.post('/admin/login', async (req, res) => {
                 res.json({ success: true, redirect: '/admin/dashboard' });
             } else {
                 // Normal form submit için redirect
-                res.redirect('/admin/dashboard');
+        res.redirect('/admin/dashboard');
             }
         } else {
             if (isAjax) {
@@ -288,9 +288,9 @@ app.post('/admin/login', async (req, res) => {
                     success: false, 
                     message: 'Geçersiz kullanıcı adı veya şifre.' 
                 });
-            } else {
+    } else {
                 // Normal form submit için error page
-                res.render('admin/login', { error: 'Geçersiz kullanıcı adı veya şifre.' });
+        res.render('admin/login', { error: 'Geçersiz kullanıcı adı veya şifre.' });
             }
         }
     } catch (error) {
@@ -563,9 +563,9 @@ async function startServer() {
     }
     
     // JSON dosya sistemini hazırla
-    initializeData();
+initializeData();
 
-    app.listen(PORT, () => {
+app.listen(PORT, () => {
         console.log(`🚀 Miray Photography website running on http://localhost:${PORT}`);
         console.log('📱 Admin panel: http://localhost:' + PORT + '/admin/login');
         console.log('🔑 Default admin credentials: username=admin, password=admin123');
