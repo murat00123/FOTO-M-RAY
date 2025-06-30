@@ -747,6 +747,104 @@ app.post('/admin/update-password', requireAdmin, async (req, res) => {
     }
 });
 
+// Content update endpoint
+app.post('/admin/update-content', requireAdmin, async (req, res) => {
+    try {
+        const {
+            heroSubtitle,
+            aboutTitle,
+            aboutText,
+            contactPhones,
+            contactEmails,
+            contactAddressShort,
+            contactAddressFull,
+            contactGoogleMapsUrl,
+            instagramUrl,
+            instagramUsername,
+            workingHours
+        } = req.body;
+
+        console.log('Content update request received');
+
+        // Validate required fields
+        if (!heroSubtitle || !aboutTitle || !aboutText) {
+            return res.status(400).json({
+                success: false,
+                message: 'Ana başlık, hakkında başlığı ve metin alanları zorunludur.'
+            });
+        }
+
+        // MySQL kullanılıyorsa Content model'ini kullan
+        if (usingMysql) {
+            const Content = require('./models/Content');
+            
+            const contentData = {
+                heroSubtitle,
+                aboutTitle,
+                aboutText,
+                contactPhones: Array.isArray(contactPhones) ? contactPhones : [contactPhones].filter(Boolean),
+                contactEmails: Array.isArray(contactEmails) ? contactEmails : [contactEmails].filter(Boolean),
+                contactAddressShort,
+                contactAddressFull,
+                contactGoogleMapsUrl,
+                instagramUrl,
+                instagramUsername,
+                workingHours: Array.isArray(workingHours) ? workingHours : []
+            };
+
+            const success = await Content.update(contentData);
+            
+            if (success) {
+                res.json({
+                    success: true,
+                    message: 'İçerik başarıyla güncellendi.'
+                });
+            } else {
+                res.status(500).json({
+                    success: false,
+                    message: 'İçerik güncellenemedi.'
+                });
+            }
+        } else {
+            // JSON dosya sistemi fallback
+            const contentData = {
+                heroSubtitle,
+                aboutTitle,
+                aboutText,
+                contactPhones: Array.isArray(contactPhones) ? contactPhones : [contactPhones].filter(Boolean),
+                contactEmails: Array.isArray(contactEmails) ? contactEmails : [contactEmails].filter(Boolean),
+                contactAddressShort,
+                contactAddressFull,
+                contactGoogleMapsUrl,
+                instagramUrl,
+                instagramUsername,
+                workingHours: Array.isArray(workingHours) ? workingHours : []
+            };
+
+            try {
+                fs.writeFileSync(contentFile, JSON.stringify(contentData, null, 4));
+                res.json({
+                    success: true,
+                    message: 'İçerik başarıyla güncellendi.'
+                });
+            } catch (error) {
+                console.error('Content JSON update error:', error);
+                res.status(500).json({
+                    success: false,
+                    message: 'İçerik güncellenemedi.'
+                });
+            }
+        }
+
+    } catch (error) {
+        console.error('Content update error:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Sunucu hatası.'
+        });
+    }
+});
+
 app.get('/admin/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/admin/login');
