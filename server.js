@@ -39,6 +39,16 @@ function initializeData() {
     if (!fs.existsSync(dataDir)) {
         fs.mkdirSync(dataDir, { recursive: true });
     }
+    
+    // uploads klasörlerini oluştur
+    const uploadsDir = path.join(__dirname, 'public/uploads');
+    const galleryDir = path.join(__dirname, 'public/uploads/gallery');
+    if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+    if (!fs.existsSync(galleryDir)) {
+        fs.mkdirSync(galleryDir, { recursive: true });
+    }
 
     // content.json
     if (!fs.existsSync(contentFile)) {
@@ -119,6 +129,16 @@ function getPhotos() {
     }
 }
 
+function savePhotos(photos) {
+    try {
+        fs.writeFileSync(photosFile, JSON.stringify(photos, null, 4));
+        return true;
+    } catch (error) {
+        console.error('Photos kaydetme hatası:', error);
+        return false;
+    }
+}
+
 // Admin credentials functions
 function getAdminCredentials() {
     try {
@@ -147,6 +167,40 @@ function requireAdmin(req, res, next) {
         res.redirect('/admin/login');
     }
 }
+
+// Multer configuration for photo uploads
+const uploadDir = path.join(__dirname, 'public/uploads/gallery');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB limit
+    },
+    fileFilter: function (req, file, cb) {
+        const allowedTypes = /jpeg|jpg|png|gif|webp/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+        
+        if (mimetype && extname) {
+            return cb(null, true);
+        } else {
+            cb(new Error('Sadece resim dosyaları yüklenebilir!'));
+        }
+    }
+});
 
 // Routes
 app.get('/', (req, res) => {
@@ -386,6 +440,146 @@ app.post('/admin/delete-message', requireAdmin, (req, res) => {
     }
 });
 
+// Photo upload endpoint
+app.post('/admin/upload-photo', requireAdmin, (req, res) => {
+    upload.single('photo')(req, res, (uploadErr) => {
+        if (uploadErr) {
+            return res.status(400).json({
+                success: false,
+                message: uploadErr.message || 'Dosya yükleme hatası.'
+            });
+        }
+        
+        handlePhotoUpload(req, res);
+    });
+});
+
+function handlePhotoUpload(req, res) {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Lütfen bir fotoğraf seçin.' 
+            });
+        }
+        
+        const { title, description } = req.body;
+        const photos = getPhotos();
+        
+        const newPhoto = {
+            id: Date.now(),
+            filename: req.file.filename,
+            title: title || '',
+            description: description || '',
+            uploadDate: new Date().toISOString(),
+            featured: false
+        };
+        
+        photos.unshift(newPhoto); // En başa ekle
+        
+        if (savePhotos(photos)) {
+            res.json({ 
+                success: true, 
+                message: 'Fotoğraf başarıyla yüklendi!',
+                photo: newPhoto
+            });
+        } else {
+            // Başarısız olursa dosyayı sil
+            if (fs.existsSync(req.file.path)) {
+                fs.unlinkSync(req.file.path);
+            }
+            res.status(500).json({ 
+                success: false, 
+                message: 'Fotoğraf kaydedilirken hata oluştu.' 
+            });
+        }
+    } catch (error) {
+        console.error('Photo upload error:', error);
+        
+        // Hata durumunda dosyayı temizle
+        if (req.file && fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
+        
+        res.status(500).json({ 
+            success: false, 
+            message: 'Fotoğraf yükleme hatası.' 
+        });
+    }
+}
+
+// Photo management endpoint
+app.post('/admin/manage-photos', requireAdmin, (req, res) => {
+    try {
+        const { action, photoIds } = req.body;
+        const photos = getPhotos();
+        
+        if (action === 'delete') {
+            // Silinecek fotoğraf dosyalarını bul ve sil
+            const photosToDelete = photos.filter(photo => photoIds.includes(photo.id.toString()));
+            photosToDelete.forEach(photo => {
+                const filePath = path.join(__dirname, 'public/uploads/gallery', photo.filename);
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
+            });
+            
+            // JSON'dan kaldır
+            const updatedPhotos = photos.filter(photo => !photoIds.includes(photo.id.toString()));
+            if (savePhotos(updatedPhotos)) {
+                res.json({ 
+                    success: true, 
+                    message: 'Seçilen fotoğraflar silindi.',
+                    action: 'delete',
+                    photoIds: photoIds
+                });
+            } else {
+                res.status(500).json({ 
+                    success: false, 
+                    message: 'Fotoğraflar silinirken hata oluştu.' 
+                });
+            }
+            
+        } else if (action === 'updateFeatured') {
+            // Tüm fotoğrafları featured=false yap
+            photos.forEach(photo => photo.featured = false);
+            
+            // Seçilen fotoğrafları featured=true yap
+            photoIds.forEach(id => {
+                const photo = photos.find(p => p.id.toString() === id);
+                if (photo) photo.featured = true;
+            });
+            
+            if (savePhotos(photos)) {
+                res.json({ 
+                    success: true, 
+                    message: 'Öne çıkan fotoğraflar güncellendi.',
+                    action: 'updateFeatured',
+                    photoIds: photoIds
+                });
+            } else {
+                res.status(500).json({ 
+                    success: false, 
+                    message: 'Öne çıkan fotoğraflar güncellenirken hata oluştu.' 
+                });
+            }
+            
+        } else {
+            res.status(400).json({ 
+                success: false, 
+                message: 'Geçersiz işlem.' 
+            });
+        }
+        
+    } catch (error) {
+        console.error('Photo management error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Fotoğraf yönetimi hatası.' 
+        });
+    }
+});
+
 // Security settings endpoints
 app.post('/admin/update-username', requireAdmin, async (req, res) => {
     try {
@@ -561,9 +755,27 @@ const { initializeDatabase } = require('./config/database');
 // MySQL kullanım durumu
 let usingMysql = false;
 
+// Ensure upload directories exist (for Render.com)
+function ensureUploadDirectories() {
+    const dirs = [
+        path.join(__dirname, 'public/uploads'),
+        path.join(__dirname, 'public/uploads/gallery')
+    ];
+    
+    dirs.forEach(dir => {
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+            console.log(`📁 Created missing directory: ${dir}`);
+        }
+    });
+}
+
 // Start server
 async function startServer() {
     console.log('🔄 Sistem başlatılıyor...');
+    
+    // Render.com için upload klasörlerini oluştur
+    ensureUploadDirectories();
     
     // Veritabanını başlat
     try {
