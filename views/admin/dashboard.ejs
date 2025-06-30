@@ -34,6 +34,21 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="#messages" class="nav-link" onclick="showTab('messages')">
+                            <i class="fas fa-envelope"></i>
+                            Mesajlar
+                            <% if (messages.filter(m => !m.read).length > 0) { %>
+                                <span class="badge"><%= messages.filter(m => !m.read).length %></span>
+                            <% } %>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#security" class="nav-link" onclick="showTab('security')">
+                            <i class="fas fa-shield-alt"></i>
+                            Güvenlik Ayarları
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="/" class="nav-link" target="_blank">
                             <i class="fas fa-external-link-alt"></i>
                             Siteyi Görüntüle
@@ -55,7 +70,7 @@
             <header class="content-header">
                 <h1>Dashboard</h1>
                 <div class="header-actions">
-                    <span class="welcome">Hoş geldiniz, Admin</span>
+                    <span class="welcome">Hoş geldiniz, <%= user.username %></span>
                     <a href="/admin/logout" class="btn btn-outline">Çıkış</a>
                 </div>
             </header>
@@ -272,6 +287,245 @@
                                 Henüz hiç fotoğraf yüklenmemiş.
                             </div>
                         <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Tab -->
+            <div id="messages" class="tab-content">
+                <div class="content-section">
+                    <h2>Gelen Mesajlar</h2>
+                    <p class="section-description">Web sitenizden gönderilen mesajları buradan görüntüleyebilir ve yönetebilirsiniz.</p>
+                    
+                    <div class="messages-container">
+                        <% if (messages && messages.length > 0) { %>
+                            <div class="messages-header">
+                                <div class="messages-stats">
+                                    <span class="stat-item">
+                                        <i class="fas fa-envelope"></i>
+                                        Toplam: <%= messages.length %>
+                                    </span>
+                                    <span class="stat-item unread">
+                                        <i class="fas fa-envelope-open"></i>
+                                        Okunmamış: <%= messages.filter(m => !m.read).length %>
+                                    </span>
+                                </div>
+                                <div class="messages-actions">
+                                    <button class="btn btn-outline" onclick="markAllAsRead()">
+                                        <i class="fas fa-check-double"></i>
+                                        Tümünü Okundu İşaretle
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="messages-list">
+                                <% messages.forEach(message => { %>
+                                    <div class="message-card <%= !message.read ? 'unread' : '' %>" data-message-id="<%= message.id %>">
+                                        <div class="message-header">
+                                            <div class="message-info">
+                                                <h4><strong>Ad Soyad:</strong> <%= message.name %></h4>
+                                                <span class="message-email"><strong>E-posta:</strong> <%= message.email %></span>
+                                                <% if (message.phone) { %>
+                                                    <span class="message-phone"><strong>Telefon:</strong> <%= message.phone %></span>
+                                                <% } %>
+                                            </div>
+                                            <div class="message-meta">
+                                                <%
+                                                    const messageDate = new Date(message.timestamp);
+                                                    const day = messageDate.getDate().toString().padStart(2, '0');
+                                                    const month = (messageDate.getMonth() + 1).toString().padStart(2, '0');
+                                                    const year = messageDate.getFullYear();
+                                                    const hours = messageDate.getHours().toString().padStart(2, '0');
+                                                    const minutes = messageDate.getMinutes().toString().padStart(2, '0');
+                                                    const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}`;
+                                                %>
+                                                <span class="message-date"><%= formattedDate %></span>
+                                                <% if (!message.read) { %>
+                                                    <span class="unread-badge">Yeni</span>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="message-content">
+                                            <% if (message.service) { %>
+                                                <%
+                                                    let serviceName = message.service;
+                                                    switch(message.service) {
+                                                        case 'wedding': serviceName = 'Düğün Fotoğrafçılığı'; break;
+                                                        case 'portrait': serviceName = 'Portre Çekimi'; break;
+                                                        case 'family': serviceName = 'Bebek & Aile'; break;
+                                                        case 'corporate': serviceName = 'Kurumsal Çekim'; break;
+                                                        case 'other': serviceName = 'Diğer'; break;
+                                                        default: serviceName = message.service;
+                                                    }
+                                                %>
+                                                <div class="message-service">
+                                                    <strong>Hizmet:</strong> <%= serviceName %>
+                                                </div>
+                                            <% } %>
+                                            <% if (message.date) { 
+                                                var eventDate = new Date(message.date);
+                                                var eventDay = eventDate.getDate().toString().padStart(2, '0');
+                                                var eventMonth = (eventDate.getMonth() + 1).toString().padStart(2, '0');
+                                                var eventYear = eventDate.getFullYear();
+                                                var formattedEventDate = eventDay + '/' + eventMonth + '/' + eventYear;
+                                            %>
+                                                <div class="message-date-info">
+                                                    <strong>Tarih:</strong> <%= formattedEventDate %>
+                                                </div>
+                                            <% } %>
+                                            <div class="message-text">
+                                                <%= message.message %>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="message-actions">
+                                            <% if (!message.read) { %>
+                                                <button class="btn btn-sm btn-primary" onclick="markAsRead(<%= message.id %>)">
+                                                    <i class="fas fa-check"></i>
+                                                    Okundu İşaretle
+                                                </button>
+                                            <% } %>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteMessage(<%= message.id %>)">
+                                                <i class="fas fa-trash"></i>
+                                                Sil
+                                            </button>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        <% } else { %>
+                            <div class="no-messages">
+                                <i class="fas fa-inbox"></i>
+                                <h3>Henüz mesaj yok</h3>
+                                <p>Web sitenizden henüz mesaj gönderilmemiş.</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Settings Tab -->
+            <div id="security" class="tab-content">
+                <div class="content-section">
+                    <h2>Güvenlik Ayarları</h2>
+                    <p class="section-description">Admin paneli giriş bilgilerinizi buradan değiştirebilirsiniz.</p>
+                    
+                    <div class="content-cards-container">
+                        <!-- Kullanıcı Adı Değiştirme -->
+                        <div class="content-card">
+                            <div class="content-card-header">
+                                <span><i class="fas fa-user"></i> Kullanıcı Adı Değiştir</span>
+                            </div>
+                            <div class="content-card-body">
+                                <form id="usernameUpdateForm" class="admin-form">
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label for="currentUsername">Mevcut Kullanıcı Adı</label>
+                                            <input type="text" id="currentUsername" value="<%= user.username %>" disabled>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="newUsername">Yeni Kullanıcı Adı</label>
+                                            <input type="text" id="newUsername" name="newUsername" placeholder="Yeni kullanıcı adınızı girin" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="confirmPassword">Mevcut Şifreniz</label>
+                                            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Güvenlik için mevcut şifrenizi girin" required autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i>
+                                            Kullanıcı Adını Güncelle
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Şifre Değiştirme -->
+                        <div class="content-card">
+                            <div class="content-card-header">
+                                <span><i class="fas fa-lock"></i> Şifre Değiştir</span>
+                            </div>
+                            <div class="content-card-body">
+                                <form id="passwordUpdateForm" class="admin-form" autocomplete="off" onsubmit="return false;">
+                                    <!-- Browser credential manager'ı kandırmak için gizli alanlar -->
+                                    <input type="text" style="display:none" autocomplete="off">
+                                    <input type="password" style="display:none" autocomplete="off">
+                                    <input type="text" style="display:none" name="fake_username" autocomplete="username">
+                                    <input type="password" style="display:none" name="fake_password" autocomplete="current-password">
+                                    
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label for="currentPassword">Mevcut Şifre</label>
+                                            <input type="password" 
+                                                   id="currentPassword" 
+                                                   name="currentPassword" 
+                                                   placeholder="Mevcut şifrenizi girin" 
+                                                   required 
+                                                   autocomplete="off">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="newPassword">Yeni Şifre</label>
+                                            <input type="password" 
+                                                   id="newPassword" 
+                                                   name="newPassword" 
+                                                   placeholder="Yeni şifrenizi girin" 
+                                                   required 
+                                                   minlength="6" 
+                                                   autocomplete="off">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="confirmNewPassword">Yeni Şifre Tekrar</label>
+                                            <input type="password" 
+                                                   id="confirmNewPassword" 
+                                                   name="confirmPassword" 
+                                                   placeholder="Yeni şifrenizi tekrar girin" 
+                                                   required 
+                                                   minlength="6" 
+                                                   autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="form-actions">
+                                        <button type="button" onclick="updatePasswordSafely()" class="btn btn-primary">
+                                            <i class="fas fa-save"></i>
+                                            Şifreyi Güncelle
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Güvenlik Bilgileri -->
+                        <div class="content-card">
+                            <div class="content-card-header">
+                                <span><i class="fas fa-info-circle"></i> Güvenlik Bilgileri</span>
+                            </div>
+                            <div class="content-card-body">
+                                <div class="security-info">
+                                    <div class="security-tip">
+                                        <i class="fas fa-shield-alt"></i>
+                                        <div>
+                                            <h4>Güçlü Şifre Önerileri</h4>
+                                            <ul>
+                                                <li>En az 8 karakter uzunluğunda olmalı</li>
+                                                <li>Büyük ve küçük harfler içermeli</li>
+                                                <li>Rakam ve özel karakterler kullanmalı</li>
+                                                <li>Kişisel bilgiler içermemeli</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="security-tip">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        <div>
+                                            <h4>Güvenlik Uyarısı</h4>
+                                            <p>Giriş bilgilerinizi kimseyle paylaşmayın ve düzenli olarak güncelleyin.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -507,6 +761,98 @@
                 }
             });
 
+            // AJAX for Security Forms
+            const usernameUpdateForm = document.getElementById('usernameUpdateForm');
+            if(usernameUpdateForm) {
+                usernameUpdateForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const btn = e.submitter;
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Güncelleniyor...';
+                    
+                    const formData = new FormData(usernameUpdateForm);
+                    const data = Object.fromEntries(formData);
+                    
+                    try {
+                        console.log('Sending username update request:', data);
+                        const response = await fetch('/admin/update-username', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data)
+                        });
+                        console.log('Response status:', response.status);
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        
+                        const result = await response.json();
+                        console.log('Response result:', result);
+                        showToast(result.message, !result.success);
+                        
+                        if(result.success) {
+                            document.getElementById('currentUsername').value = data.newUsername;
+                            usernameUpdateForm.reset();
+                        }
+                    } catch (err) {
+                        console.error('Username update error:', err);
+                        showToast('Bir ağ hatası oluştu: ' + err.message, true);
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-save"></i> Kullanıcı Adını Güncelle';
+                    }
+                });
+            }
+
+            const passwordUpdateForm = document.getElementById('passwordUpdateForm');
+            if(passwordUpdateForm) {
+                passwordUpdateForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const btn = e.submitter;
+                    const newPassword = document.getElementById('newPassword').value;
+                    const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+                    
+                    if (newPassword !== confirmNewPassword) {
+                        showToast('Yeni şifreler eşleşmiyor.', true);
+                        return;
+                    }
+                    
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Güncelleniyor...';
+                    
+                    const formData = new FormData(passwordUpdateForm);
+                    const data = Object.fromEntries(formData);
+                    
+                    try {
+                        console.log('Sending password update request:', data);
+                        const response = await fetch('/admin/update-password', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data)
+                        });
+                        console.log('Response status:', response.status);
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        
+                        const result = await response.json();
+                        console.log('Response result:', result);
+                        showToast(result.message, !result.success);
+                        
+                        if(result.success) {
+                            passwordUpdateForm.reset();
+                        }
+                    } catch (err) {
+                        console.error('Password update error:', err);
+                        showToast('Bir ağ hatası oluştu: ' + err.message, true);
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-save"></i> Şifreyi Güncelle';
+                    }
+                });
+            }
+
             // Sayfa yüklendiğinde URL hash'ine göre doğru sekmeyi göster
             const hash = window.location.hash.substring(1);
             if (hash) {
@@ -571,6 +917,200 @@
             }
             cancelSelectionMode();
         }
+
+        // Message Management Functions
+        async function markAsRead(messageId) {
+            try {
+                const response = await fetch('/admin/mark-message-read', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messageId })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    const messageCard = document.querySelector(`[data-message-id="${messageId}"]`);
+                    if (messageCard) {
+                        messageCard.classList.remove('unread');
+                        const unreadBadge = messageCard.querySelector('.unread-badge');
+                        if (unreadBadge) unreadBadge.remove();
+                        
+                        const markAsReadBtn = messageCard.querySelector('.btn-primary');
+                        if (markAsReadBtn) markAsReadBtn.remove();
+                        
+                        // Update unread count
+                        updateUnreadCount();
+                    }
+                    showToast('Mesaj okundu olarak işaretlendi.', false);
+                } else {
+                    showToast(result.message, true);
+                }
+            } catch (error) {
+                showToast('Bir hata oluştu.', true);
+            }
+        }
+
+        async function deleteMessage(messageId) {
+            if (!confirm('Bu mesajı silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/admin/delete-message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messageId })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    const messageCard = document.querySelector(`[data-message-id="${messageId}"]`);
+                    if (messageCard) {
+                        messageCard.style.transition = 'opacity 0.3s, transform 0.3s';
+                        messageCard.style.opacity = '0';
+                        messageCard.style.transform = 'scale(0.8)';
+                        setTimeout(() => {
+                            messageCard.remove();
+                            updateMessageCount();
+                            updateUnreadCount();
+                            
+                            // Check if no messages left
+                            const messagesList = document.querySelector('.messages-list');
+                            if (messagesList && messagesList.children.length === 0) {
+                                location.reload(); // Reload to show no-messages state
+                            }
+                        }, 300);
+                    }
+                    showToast('Mesaj silindi.', false);
+                } else {
+                    showToast(result.message, true);
+                }
+            } catch (error) {
+                showToast('Bir hata oluştu.', true);
+            }
+        }
+
+        async function markAllAsRead() {
+            const unreadMessages = document.querySelectorAll('.message-card.unread');
+            if (unreadMessages.length === 0) {
+                showToast('Okunmamış mesaj yok.', false);
+                return;
+            }
+            
+            try {
+                for (const messageCard of unreadMessages) {
+                    const messageId = messageCard.dataset.messageId;
+                    await markAsRead(messageId);
+                }
+                showToast('Tüm mesajlar okundu olarak işaretlendi.', false);
+            } catch (error) {
+                showToast('Bir hata oluştu.', true);
+            }
+        }
+
+        function updateUnreadCount() {
+            const unreadCount = document.querySelectorAll('.message-card.unread').length;
+            const badge = document.querySelector('.nav-link[href="#messages"] .badge');
+            if (badge) {
+                if (unreadCount > 0) {
+                    badge.textContent = unreadCount;
+                } else {
+                    badge.remove();
+                }
+            }
+        }
+
+        function updateMessageCount() {
+            const totalCount = document.querySelectorAll('.message-card').length;
+            const totalStat = document.querySelector('.messages-stats .stat-item:first-child');
+            if (totalStat) {
+                totalStat.innerHTML = `<i class="fas fa-envelope"></i> Toplam: ${totalCount}`;
+            }
+        }
+
+        // Credential Manager Engelleyici Fonksiyonlar
+        function clearCredentialDialog() {
+            // Bu fonksiyonu boş bırakıyoruz çünkü focus kaybına neden oluyor
+        }
+
+        function updatePasswordSafely() {
+            const form = document.getElementById('passwordUpdateForm');
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
+            
+            // Validation
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showToast('Tüm alanları doldurun.', true);
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showToast('Yeni şifreler eşleşmiyor.', true);
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showToast('Şifre en az 6 karakter olmalıdır.', true);
+                return;
+            }
+            
+            const btn = document.querySelector('#passwordUpdateForm button');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Güncelleniyor...';
+            
+            // AJAX request - credential manager'ı bypassing
+            fetch('/admin/update-password', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Cache-Control': 'no-cache'
+                },
+                body: JSON.stringify({
+                    currentPassword: currentPassword,
+                    newPassword: newPassword,
+                    confirmPassword: confirmPassword
+                }),
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(result => {
+                showToast(result.message, !result.success);
+                
+                if (result.success) {
+                    // Form'u temizle ama browser'ın algılayamayacağı şekilde
+                    setTimeout(() => {
+                        document.getElementById('currentPassword').value = '';
+                        document.getElementById('newPassword').value = '';
+                        document.getElementById('confirmNewPassword').value = '';
+                        
+                        // Fake submit to confuse browser
+                        const fakeForm = document.createElement('form');
+                        fakeForm.style.display = 'none';
+                        fakeForm.innerHTML = `
+                            <input type="text" name="username" value="dummy_user_${Date.now()}">
+                            <input type="password" name="password" value="dummy_pass_${Date.now()}">
+                        `;
+                        document.body.appendChild(fakeForm);
+                        setTimeout(() => document.body.removeChild(fakeForm), 100);
+                    }, 500);
+                }
+            })
+            .catch(err => {
+                showToast('Bir ağ hatası oluştu: ' + err.message, true);
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> Şifreyi Güncelle';
+            });
+        }
+
+        // Sayfa yüklendiğinde credential manager'ı disable et
+        window.addEventListener('load', function() {
+            // Browser password manager'ı disable etmek için - artık gerekli değil
+            console.log('Sayfa yüklendi - şifre alanları hazır');
+        });
     </script>
 </body>
 </html> 

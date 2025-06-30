@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Admin Giriş - MİRAY PHOTOGRAPHY</title>
     <link rel="stylesheet" href="/css/admin.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,19 +22,31 @@
                 <p>Yönetim paneline giriş yapın</p>
             </div>
             
-            <% if (error) { %>
-                <div class="alert alert-error">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <%= error %>
-                </div>
-            <% } %>
+            <div id="errorAlert" class="alert alert-error" style="display: none;">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorMessage"></span>
+            </div>
             
-            <form method="POST" action="/admin/login" class="login-form">
+            <div id="loadingAlert" class="alert alert-info" style="display: none;">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Giriş yapılıyor...</span>
+            </div>
+            
+            <form id="loginForm" class="login-form" autocomplete="off">
+                <!-- Browser credential manager'ı kandırmak için gizli alanlar -->
+                <input type="text" style="display:none">
+                <input type="password" style="display:none">
+                
                 <div class="form-group">
                     <label for="username">Kullanıcı Adı</label>
                     <div class="input-group">
                         <i class="fas fa-user"></i>
-                        <input type="text" id="username" name="username" required placeholder="Kullanıcı adınızı girin">
+                        <input type="text" id="username" name="username" required placeholder="Kullanıcı adınızı girin" 
+                               autocomplete="off" 
+                               autocapitalize="off" 
+                               autocorrect="off" 
+                               spellcheck="false"
+                               readonly onfocus="this.removeAttribute('readonly')">
                     </div>
                 </div>
                 
@@ -39,7 +54,9 @@
                     <label for="password">Şifre</label>
                     <div class="input-group">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="password" name="password" required placeholder="Şifrenizi girin">
+                        <input type="password" id="password" name="password" required placeholder="Şifrenizi girin"
+                               autocomplete="new-password" 
+                               readonly onfocus="this.removeAttribute('readonly')">
                     </div>
                 </div>
                 
@@ -61,5 +78,117 @@
     <div class="login-bg">
         <div class="bg-overlay"></div>
     </div>
+
+    <script>
+        // Browser credential manager'ı devre dışı bırakmak için
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('loginForm');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+            const loadingAlert = document.getElementById('loadingAlert');
+            
+            // Input'lara focus olduğunda readonly'yi kaldır
+            [usernameInput, passwordInput].forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.removeAttribute('readonly');
+                    // Hata mesajını gizle
+                    hideError();
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.setAttribute('readonly', true);
+                });
+            });
+            
+            // Form submit AJAX ile işle
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value.trim();
+                
+                // Validasyon
+                if (!username || !password) {
+                    showError('Kullanıcı adı ve şifre gereklidir.');
+                    return;
+                }
+                
+                // Loading göster
+                showLoading();
+                hideError();
+                
+                // AJAX request
+                console.log('Sending login request with:', { username, password });
+                fetch('/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ username, password })
+                })
+                .then(response => {
+                    hideLoading();
+                    
+                    // JSON response'u parse et
+                    return response.json().then(data => {
+                        return { status: response.status, data: data };
+                    }).catch(() => {
+                        // JSON parse hatası durumunda
+                        return { status: response.status, data: { success: false, message: 'Sunucu yanıt hatası.' } };
+                    });
+                })
+                .then(result => {
+                    const { status, data } = result;
+                    console.log('Received response:', { status, data });
+                    
+                    if (data.success) {
+                        // Başarılı giriş - dashboard'a yönlendir
+                        window.location.href = data.redirect || '/admin/dashboard';
+                    } else {
+                        // Hata durumu - mesajı göster
+                        showError(data.message || 'Geçersiz kullanıcı adı veya şifre.');
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    console.error('Login error:', error);
+                    showError('Giriş hatası. Lütfen tekrar deneyin.');
+                });
+            });
+            
+            function showError(message) {
+                console.log('Showing error:', message);
+                errorMessage.textContent = message;
+                errorAlert.style.display = 'block';
+            }
+            
+            function hideError() {
+                errorAlert.style.display = 'none';
+            }
+            
+            function showLoading() {
+                loadingAlert.style.display = 'block';
+            }
+            
+            function hideLoading() {
+                loadingAlert.style.display = 'none';
+            }
+            
+            // Sayfa yüklendiğinde session storage'ı temizle
+            sessionStorage.clear();
+            localStorage.removeItem('adminCredentials');
+            
+            // Browser cache'ini temizlemek için history manipulation
+            if (window.history && window.history.pushState) {
+                window.history.pushState(null, null, window.location.href);
+                window.addEventListener('popstate', function() {
+                    window.location.reload();
+                });
+            }
+        });
+    </script>
 </body>
 </html> 

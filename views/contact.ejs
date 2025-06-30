@@ -104,25 +104,25 @@
 
                     <div class="contact-form" data-aos="fade-left">
                         <h2>Mesaj Gönderin</h2>
-                        <form id="contactForm">
+                        <form id="contactForm" novalidate onsubmit="return false;">
                             <div class="form-group">
                                 <label for="name">Ad Soyad</label>
-                                <input type="text" id="name" name="name" required>
+                                <input type="text" id="name" name="name">
                             </div>
                             
                             <div class="form-group">
                                 <label for="email">E-posta</label>
-                                <input type="email" id="email" name="email" required>
+                                <input type="text" id="email" name="email_address" autocomplete="off" spellcheck="false">
                             </div>
                             
                             <div class="form-group">
                                 <label for="phone">Telefon</label>
-                                <input type="tel" id="phone" name="phone">
+                                <input type="text" id="phone" name="phone" pattern="[0-9+\-\s()]*" maxlength="20" placeholder="Örn: 0555 123 45 67">
                             </div>
                             
                             <div class="form-group">
                                 <label for="service">Hizmet Türü</label>
-                                <select id="service" name="service" required>
+                                <select id="service" name="service">
                                     <option value="">Seçiniz</option>
                                     <option value="wedding">Düğün Fotoğrafçılığı</option>
                                     <option value="portrait">Portre Çekimi</option>
@@ -134,15 +134,16 @@
                             
                             <div class="form-group">
                                 <label for="date">Tarih</label>
-                                <input type="date" id="date" name="date">
+                                <input type="date" id="date" name="date" min="">
+                                <div class="date-error" id="dateError">Geçmiş tarih seçemezsiniz. Lütfen bugünden sonraki bir tarih seçin.</div>
                             </div>
                             
                             <div class="form-group">
                                 <label for="message">Mesajınız</label>
-                                <textarea id="message" name="message" rows="5" required placeholder="Proje detaylarınızı ve özel isteklerinizi yazın..."></textarea>
+                                <textarea id="message" name="message" rows="5" placeholder="Proje detaylarınızı ve özel isteklerinizi yazın..."></textarea>
                             </div>
                             
-                            <button type="submit" class="btn btn-primary">Mesaj Gönder</button>
+                            <button type="button" class="btn btn-primary" onclick="submitForm()">Mesaj Gönder</button>
                         </form>
                     </div>
                 </div>
@@ -155,5 +156,208 @@
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="/js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const contactForm = document.getElementById('contactForm');
+            const dateInput = document.getElementById('date');
+            const phoneInput = document.getElementById('phone');
+            const emailInput = document.getElementById('email');
+            
+            // Disable browser validation for email
+            emailInput.addEventListener('invalid', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            });
+            
+            emailInput.addEventListener('input', function(e) {
+                // Remove any browser validation styling
+                this.setCustomValidity('');
+                this.style.borderColor = '#ddd';
+                this.style.boxShadow = 'none';
+            });
+            
+            // Prevent form validation on email field
+            emailInput.addEventListener('blur', function(e) {
+                this.setCustomValidity('');
+            });
+            
+            emailInput.addEventListener('focus', function(e) {
+                this.setCustomValidity('');
+            });
+            
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.min = today;
+            
+            // Track if the date was selected from calendar
+            let isCalendarSelection = false;
+            
+            // Listen for calendar picker click
+            dateInput.addEventListener('click', function() {
+                isCalendarSelection = true;
+            });
+            
+            // Prevent manual typing but allow calendar
+            dateInput.addEventListener('keydown', function(e) {
+                // Allow arrow keys, tab, enter for navigation
+                if ([8, 9, 13, 37, 38, 39, 40, 46].includes(e.keyCode)) {
+                    return true;
+                }
+                // Allow numbers and dash for date format
+                if (/[0-9-]/.test(e.key)) {
+                    return true;
+                }
+                e.preventDefault();
+                return false;
+            });
+            
+            // Validate date when selected
+            dateInput.addEventListener('change', function() {
+                const selectedDate = new Date(this.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const dateError = document.getElementById('dateError');
+                
+                if (selectedDate < today) {
+                    dateError.classList.add('show');
+                    this.value = '';
+                    this.focus();
+                } else {
+                    dateError.classList.remove('show');
+                }
+                
+                // Reset calendar selection flag
+                isCalendarSelection = false;
+            });
+            
+            // Phone number validation - only allow numbers, spaces, parentheses, plus and dash
+            phoneInput.addEventListener('input', function(e) {
+                // Remove any characters that are not allowed
+                this.value = this.value.replace(/[^0-9+\-\s()]/g, '');
+            });
+            
+            // Prevent paste of invalid characters in phone field
+            phoneInput.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+                const cleanText = pastedText.replace(/[^0-9+\-\s()]/g, '');
+                this.value = cleanText;
+            });
+            
+            // Submit form function
+            window.submitForm = function() {
+                const formData = new FormData(contactForm);
+                
+                // Manual validation
+                const name = formData.get('name');
+                const email = formData.get('email_address');
+                const message = formData.get('message');
+                
+                if (!name || !email || !message) {
+                    showNotification('Lütfen Ad Soyad, E-posta ve Mesaj alanlarını doldurun.', 'error');
+                    return;
+                }
+                
+                const submitBtn = document.querySelector('.btn-primary');
+                const originalText = submitBtn.innerHTML;
+                
+                // Disable button and show loading
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gönderiliyor...';
+                
+                fetch('/contact/send-message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        email: email,
+                        phone: formData.get('phone'),
+                        service: formData.get('service'),
+                        date: formData.get('date'),
+                        message: message
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success message
+                        showNotification(data.message, 'success');
+                        
+                        // Manually clear form instead of reset
+                        contactForm.querySelector('#name').value = '';
+                        contactForm.querySelector('#email').value = '';
+                        contactForm.querySelector('#phone').value = '';
+                        contactForm.querySelector('#service').value = '';
+                        contactForm.querySelector('#date').value = '';
+                        contactForm.querySelector('#message').value = '';
+                        
+                        // Hide date error if visible
+                        const dateError = document.getElementById('dateError');
+                        if (dateError) {
+                            dateError.classList.remove('show');
+                        }
+                    } else {
+                        showNotification(data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Bir hata oluştu. Lütfen tekrar deneyin.', 'error');
+                })
+                .finally(() => {
+                    // Re-enable button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                });
+            };
+            
+            function showNotification(message, type) {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+                
+                // Add styles
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    color: white;
+                    font-weight: 500;
+                    z-index: 1000;
+                    transform: translateX(100%);
+                    transition: transform 0.3s ease;
+                    background-color: ${type === 'success' ? '#10b981' : '#ef4444'};
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Animate in
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(0)';
+                }, 100);
+                
+                // Remove after 5 seconds
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 5000);
+            }
+        });
+    </script>
 </body>
 </html> 
