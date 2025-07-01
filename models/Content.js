@@ -63,25 +63,54 @@ class Content {
                 if (rows.length === 0) return this.getFromJSON();
                 
                 const content = rows[0];
-                // JSON alanları parse et
-                content.contactPhones = JSON.parse(content.contact_phones || '[]');
-                content.contactEmails = JSON.parse(content.contact_emails || '[]');
-                content.workingHours = JSON.parse(content.working_hours || '[]');
+                
+                // JSON alanları güvenli parse et
+                let contactPhones = [];
+                try {
+                    contactPhones = content.contact_phones ? JSON.parse(content.contact_phones) : [];
+                } catch (e) {
+                    console.error('contact_phones JSON parse hatası:', content.contact_phones);
+                    contactPhones = ['0555 123 45 67'];
+                }
+                
+                let contactEmails = [];
+                try {
+                    contactEmails = content.contact_emails ? JSON.parse(content.contact_emails) : [];
+                } catch (e) {
+                    console.error('contact_emails JSON parse hatası:', content.contact_emails);
+                    contactEmails = ['info@fotomiray.com'];
+                }
+                
+                let workingHours = [];
+                try {
+                    workingHours = content.working_hours ? JSON.parse(content.working_hours) : [];
+                } catch (e) {
+                    console.error('working_hours JSON parse hatası:', content.working_hours);
+                    workingHours = [
+                        { day: 'Pazartesi', hours: '09:00 - 18:00' },
+                        { day: 'Salı', hours: '09:00 - 18:00' },
+                        { day: 'Çarşamba', hours: '09:00 - 18:00' },
+                        { day: 'Perşembe', hours: '09:00 - 18:00' },
+                        { day: 'Cuma', hours: '09:00 - 18:00' },
+                        { day: 'Cumartesi', hours: '10:00 - 16:00' },
+                        { day: 'Pazar', hours: 'Kapalı' }
+                    ];
+                }
                 
                 // Camel case'e çevir
                 return {
                     id: content.id,
-                    heroSubtitle: content.hero_subtitle,
-                    aboutTitle: content.about_title,
-                    aboutText: content.about_text,
-                    contactPhones: content.contactPhones,
-                    contactEmails: content.contactEmails,
-                    contactAddressShort: content.contact_address_short,
-                    contactAddressFull: content.contact_address_full,
-                    contactGoogleMapsUrl: content.contact_google_maps_url,
-                    instagramUrl: content.instagram_url,
-                    instagramUsername: content.instagram_username,
-                    workingHours: content.workingHours,
+                    heroSubtitle: content.hero_subtitle || 'Anılarınızı Sanat Eserine Dönüştürüyoruz',
+                    aboutTitle: content.about_title || 'Merhaba, Ben Miray',
+                    aboutText: content.about_text || 'Fotoğrafçılık tutkum ile sizlerin en özel anlarını ölümsüzleştiriyorum.',
+                    contactPhones: contactPhones,
+                    contactEmails: contactEmails,
+                    contactAddressShort: content.contact_address_short || 'İstanbul, Türkiye',
+                    contactAddressFull: content.contact_address_full || 'Beşiktaş, İstanbul, Türkiye',
+                    contactGoogleMapsUrl: content.contact_google_maps_url || 'https://maps.google.com',
+                    instagramUrl: content.instagram_url || 'https://instagram.com/fotomiray',
+                    instagramUsername: content.instagram_username || '@fotomiray',
+                    workingHours: workingHours,
                     createdAt: content.created_at,
                     updatedAt: content.updated_at
                 };
