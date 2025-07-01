@@ -64,28 +64,60 @@ class Content {
                 
                 const content = rows[0];
                 
-                // JSON alanları güvenli parse et
+                // JSON alanları parse et (MySQL zaten otomatik parse ediyor olabilir)
                 let contactPhones = [];
-                try {
-                    contactPhones = content.contact_phones ? JSON.parse(content.contact_phones) : [];
-                } catch (e) {
-                    console.error('contact_phones JSON parse hatası:', content.contact_phones);
+                if (content.contact_phones) {
+                    if (Array.isArray(content.contact_phones)) {
+                        contactPhones = content.contact_phones;
+                    } else if (typeof content.contact_phones === 'string') {
+                        try {
+                            contactPhones = JSON.parse(content.contact_phones);
+                        } catch (e) {
+                            console.error('contact_phones JSON parse hatası:', content.contact_phones);
+                            contactPhones = ['0555 123 45 67'];
+                        }
+                    }
+                } else {
                     contactPhones = ['0555 123 45 67'];
                 }
                 
                 let contactEmails = [];
-                try {
-                    contactEmails = content.contact_emails ? JSON.parse(content.contact_emails) : [];
-                } catch (e) {
-                    console.error('contact_emails JSON parse hatası:', content.contact_emails);
+                if (content.contact_emails) {
+                    if (Array.isArray(content.contact_emails)) {
+                        contactEmails = content.contact_emails;
+                    } else if (typeof content.contact_emails === 'string') {
+                        try {
+                            contactEmails = JSON.parse(content.contact_emails);
+                        } catch (e) {
+                            console.error('contact_emails JSON parse hatası:', content.contact_emails);
+                            contactEmails = ['info@fotomiray.com'];
+                        }
+                    }
+                } else {
                     contactEmails = ['info@fotomiray.com'];
                 }
                 
                 let workingHours = [];
-                try {
-                    workingHours = content.working_hours ? JSON.parse(content.working_hours) : [];
-                } catch (e) {
-                    console.error('working_hours JSON parse hatası:', content.working_hours);
+                if (content.working_hours) {
+                    if (Array.isArray(content.working_hours)) {
+                        workingHours = content.working_hours;
+                    } else if (typeof content.working_hours === 'string') {
+                        try {
+                            workingHours = JSON.parse(content.working_hours);
+                        } catch (e) {
+                            console.error('working_hours JSON parse hatası:', content.working_hours);
+                            workingHours = [
+                                { day: 'Pazartesi', hours: '09:00 - 18:00' },
+                                { day: 'Salı', hours: '09:00 - 18:00' },
+                                { day: 'Çarşamba', hours: '09:00 - 18:00' },
+                                { day: 'Perşembe', hours: '09:00 - 18:00' },
+                                { day: 'Cuma', hours: '09:00 - 18:00' },
+                                { day: 'Cumartesi', hours: '10:00 - 16:00' },
+                                { day: 'Pazar', hours: 'Kapalı' }
+                            ];
+                        }
+                    }
+                } else {
                     workingHours = [
                         { day: 'Pazartesi', hours: '09:00 - 18:00' },
                         { day: 'Salı', hours: '09:00 - 18:00' },
